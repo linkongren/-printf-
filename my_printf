@@ -1,0 +1,64 @@
+//用数组存储参数，putchar输出
+//数组定义在my_printf函数中运行时产生段错误（不知道原因）
+//使用 do - while 循环 0也能输出
+//INT32_MIN 超int的取值范围，所以用long long型的temp 记录参数的值
+//船长的代码在for循环里又重新定义了cnt变量，导致返回值一直是0
+
+
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdarg.h>
+ #include <inttypes.h>
+ 
+ char num[30]; 
+ 
+int my_printf(const char *frm, ...){
+     int cnt = 0;
+     va_list arg;
+     va_start(arg, frm);
+     for (int i = 0; frm[i]; i++, cnt++){
+         switch (frm[i]){
+             case '%': {
+                 i++;
+                 switch(frm[i]){
+                     case 'd':{
+                         long long temp = va_arg(arg, int), x = 0;
+                         int len = 0;
+                         if(temp < 0){
+                             putchar('-');
+                             temp = -temp;
+                             cnt += 1;
+                         }
+                         do{
+                             num[len++] = temp % 10 + '0';
+                             temp /= 10;
+                             cnt += 1;
+                         }while(temp);
+                         cnt -= 1;
+                         for(int j = len - 1; j >= 0; j--){
+                             putchar(num[j]);
+                         }
+                     } break;
+                    default :
+                              fprintf(stderr, "error : unknow %%c\n", frm[i]);
+                              exit(1);
+                 }break;
+             }
+             default:
+                 putchar(frm[i]);
+         }
+     }
+     return cnt ;
+ }
+
+int main ()
+ {
+     my_printf("hello world\n");
+     my_printf("n = %d\n", 123);
+     my_printf("n = %d\n", 12000);
+     my_printf("n = %d\n", -567);
+     my_printf("n = %d\n", INT32_MIN);
+     my_printf("n = %d\n", INT32_MAX);
+     return 0;
+ }
+ 
